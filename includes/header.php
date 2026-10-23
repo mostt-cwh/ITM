@@ -38,6 +38,7 @@ $flash = flash_pull();
       </a>
       <nav class="nav" aria-label="主要">
         <a href="index.php"<?= $activeNav === 'records' ? ' class="is-on" aria-current="page"' : '' ?>>記錄</a>
+        <a href="bookings.php"<?= $activeNav === 'bookings' ? ' class="is-on" aria-current="page"' : '' ?>>訂房</a>
         <?php if ($user): ?>
           <a href="report.php"<?= $activeNav === 'report' ? ' class="is-on" aria-current="page"' : '' ?>>新增工作</a>
           <?php if ($user['role'] === 'admin'): ?>

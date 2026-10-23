@@ -16,6 +16,9 @@ USE it_ops;
 
 SET NAMES utf8mb4;
 
+DROP TABLE IF EXISTS booking_syncs;
+DROP TABLE IF EXISTS room_bookings;
+DROP TABLE IF EXISTS app_settings;
 DROP TABLE IF EXISTS work_cases;
 DROP TABLE IF EXISTS work_types;
 DROP TABLE IF EXISTS statuses;
@@ -97,3 +100,46 @@ INSERT INTO users (id, username, display_name, password_hash, role, active, sort
   (2, 'marco', 'Marco', '$2y$10$hiMkPE.QJxibfo4OPSFpGelBgGG/IC9An0aBAxuWEV.0mP1Nyh.KG', 'technician', 1, 1),
   (3, 'dragon', 'Dragon', '$2y$10$u9seROASw4bz7u8lLDk5xOe3LoZYh5k4GW0Vyuf25mAUVtuRsRkDC', 'technician', 1, 2),
   (4, 'stanley', 'Stanley', '$2y$10$/XBTjfhzGN6PSB9LAvsCOuG8NflhTv9W9clnGgZxb.y7ODWR0E94i', 'technician', 1, 3);
+
+CREATE TABLE app_settings (
+  setting_key VARCHAR(40) NOT NULL,
+  setting_value VARCHAR(255) NOT NULL,
+  PRIMARY KEY (setting_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE room_bookings (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  source_key VARCHAR(191) NOT NULL,
+  room VARCHAR(120) NOT NULL,
+  starts_at DATETIME NOT NULL,
+  ends_at DATETIME NULL,
+  booker VARCHAR(80) NULL,
+  purpose VARCHAR(255) NULL,
+  status_label VARCHAR(40) NULL,
+  remarks TEXT NULL,
+  synced_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_room_bookings_source (source_key),
+  KEY idx_room_bookings_start (starts_at),
+  KEY idx_room_bookings_room (room)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE booking_syncs (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  synced_by INT UNSIGNED NULL,
+  row_count INT UNSIGNED NOT NULL,
+  removed_count INT UNSIGNED NOT NULL DEFAULT 0,
+  note VARCHAR(200) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  CONSTRAINT fk_booking_sync_user FOREIGN KEY (synced_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO room_bookings
+  (source_key, room, starts_at, ends_at, booker, purpose, status_label, remarks, synced_at)
+VALUES
+  ('sample:hall-20261023-0900', 'Hall', '2026-10-23 09:00:00', '2026-10-23 10:30:00', 'LPK', '畢業典禮綵排', '已批核', '示範資料，同步 eClass 後會被同一天的正式記錄取代', '2026-10-23 08:00:00'),
+  ('sample:rm109-20261023-1345', 'RM109', '2026-10-23 13:45:00', '2026-10-23 16:00:00', 'Dragon', '看管 Maker Lab', '已批核', NULL, '2026-10-23 08:00:00'),
+  ('sample:rm203-20261023-1000', 'RM203', '2026-10-23 10:00:00', '2026-10-23 11:00:00', 'CKLI', 'Apple TV 檢查', '待批核', NULL, '2026-10-23 08:00:00'),
+  ('sample:hall-20261024-1400', 'Hall', '2026-10-24 14:00:00', '2026-10-24 16:00:00', 'Flora', '家長日佈置', '已批核', NULL, '2026-10-23 08:00:00'),
+  ('sample:lib-20261024-0830', 'LIB', '2026-10-24 08:30:00', '2026-10-24 12:00:00', 'KEN', '閱讀課', '已批核', NULL, '2026-10-23 08:00:00');

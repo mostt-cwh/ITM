@@ -43,7 +43,11 @@ function render_setup_page(PDOException $e): void
     } elseif (stripos($detail, 'Connection refused') !== false || strpos($detail, '2002') !== false) {
         $hint = '無法連線 MySQL。請先啟動資料庫服務。';
     } elseif (stripos($detail, 'Base table or view not found') !== false || strpos($detail, '42S02') !== false) {
-        $hint = '資料表尚未建立。請匯入 sql/schema.sql，再匯入 sql/sample_data.sql。';
+        if (stripos($detail, 'room_bookings') !== false || stripos($detail, 'booking_syncs') !== false || stripos($detail, 'app_settings') !== false) {
+            $hint = '訂房資料表尚未建立。已安裝的系統請匯入 sql/bookings.sql，不必重跑 schema.sql。';
+        } else {
+            $hint = '資料表尚未建立。請匯入 sql/schema.sql，再匯入 sql/sample_data.sql。';
+        }
     }
 
     $hint = htmlspecialchars($hint, ENT_QUOTES, 'UTF-8');

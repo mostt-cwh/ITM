@@ -28,7 +28,7 @@ function redirect(string $path): void
 
 function safe_next(string $next): string
 {
-    if (preg_match('/^(index|case|report|accounts|password)\.php(\?[A-Za-z0-9_\-=&%\.]*)?$/', $next)) {
+    if (preg_match('/^(index|case|report|accounts|password|bookings|booking_sync)\.php(\?[A-Za-z0-9_\-=&%\.]*)?$/', $next)) {
         return $next;
     }
     return 'index.php';
